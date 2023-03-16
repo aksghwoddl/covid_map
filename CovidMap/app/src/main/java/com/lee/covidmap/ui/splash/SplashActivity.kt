@@ -2,6 +2,7 @@ package com.lee.covidmap.ui.splash
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.viewModels
@@ -12,11 +13,14 @@ import com.lee.covidmap.common.NetworkResult
 import com.lee.covidmap.common.Utils
 import com.lee.covidmap.common.base.BaseActivity
 import com.lee.covidmap.databinding.ActivitySplashBinding
+import com.lee.covidmap.ui.main.MainActivity
 import com.lee.covidmap.ui.splash.viewmodel.SplashViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 private const val TAG = "SplashActivity"
-
+/**
+ * Splash 화면
+ * **/
 @SuppressLint("CustomSplashScreen")
 @AndroidEntryPoint
 class SplashActivity : BaseActivity<ActivitySplashBinding>(R.layout.activity_splash){
@@ -42,10 +46,16 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>(R.layout.activity_spl
 
             covidList.observe(this@SplashActivity){ result -> // 선별소 리스트
                 when(result){
-                    is NetworkResult.Success -> Log.d(TAG, "observeData: ${result.data}")
+                    is NetworkResult.Success -> insertCenterList(result.data)
                     is NetworkResult.Failure -> Log.d(TAG, "observeData: ${result.code}")
                     is NetworkResult.Exception -> Log.d(TAG, "observeData: ${result.errorMessage}")
                     is NetworkResult.Loading -> {}
+                }
+            }
+
+            endProgress.observe(this@SplashActivity){
+                if(it){
+                    startMainActivity()
                 }
             }
         }
@@ -107,6 +117,13 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>(R.layout.activity_spl
                     dialog.dismiss()
                 }
                 .create().show()
+        }
+    }
+
+    private fun startMainActivity() {
+        with(Intent(this@SplashActivity , MainActivity::class.java)){
+            startActivity(this)
+            finish()
         }
     }
 }
