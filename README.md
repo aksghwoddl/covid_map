@@ -43,6 +43,13 @@
 
 <br>
 
+### 🎥 시연 화면
+<div align="center">
+ <img width="30%" alt="app_main" src="https://user-images.githubusercontent.com/65700842/225917789-2a3a4da5-5b72-4caf-9d59-5790db77c1cc.gif">
+</div>
+
+<br>
+
 ### 😎 프로젝트 사용기술 설명
 ##### 1️⃣ Dagger Hilt를 활용하여 의존성을 주입 해주었습니다.
 ##### 2️⃣ MVVM 디자인 기반으로 프로젝트를 진행 하였습니다.
