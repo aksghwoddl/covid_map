@@ -8,6 +8,7 @@ import android.util.Log
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import com.gun0912.tedpermission.normal.TedPermission
+import com.lee.covidmap.BuildConfig
 import com.lee.covidmap.R
 import com.lee.covidmap.common.NetworkResult
 import com.lee.covidmap.common.Utils
@@ -15,6 +16,7 @@ import com.lee.covidmap.common.base.BaseActivity
 import com.lee.covidmap.databinding.ActivitySplashBinding
 import com.lee.covidmap.ui.main.MainActivity
 import com.lee.covidmap.ui.splash.viewmodel.SplashViewModel
+import com.naver.maps.map.NaverMapSdk
 import dagger.hilt.android.AndroidEntryPoint
 
 private const val TAG = "SplashActivity"
