@@ -23,6 +23,13 @@ class MainViewModel @Inject constructor(
     val centerList : LiveData<List<Center>>
     get() = _centerList
 
+    private val _selectedCenter = MutableLiveData<Center>()
+    val selectedCenter : LiveData<Center>
+    get() = _selectedCenter
+    fun setSelectedCenter(center: Center){
+        _selectedCenter.value = center
+    }
+
     /**
      * 저장된 선별소 목록 불러오기
      * **/

@@ -9,4 +9,13 @@
     <!--Splash -->
     <string name="during_download">선별소 목록을 다운로드 중입니다.</string>
 
+    <!-- Main -->
+    <string name="local">지역</string>
+    <string name="central">중앙/권역</string>
+    <string name="address">주소 : </string>
+    <string name="center_name">이름 : </string>
+    <string name="facility_name">시설이름 : </string>
+    <string name="phone_number">전화번호 : </string>
+    <string name="update_at">업데이트일자 : </string>
+
 </resources>

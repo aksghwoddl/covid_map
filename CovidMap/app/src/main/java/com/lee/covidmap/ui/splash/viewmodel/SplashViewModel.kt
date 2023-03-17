@@ -78,7 +78,6 @@ class SplashViewModel @Inject constructor(
         insertJob = CoroutineScope(Dispatchers.IO).launch {
             centerFlow.collect{ center ->
                 val centerEntity = CenterEntity(center.id , center)
-                Log.d(TAG, "insertCenterList: $centerEntity")
                 repository.insertCenter(centerEntity)
             }
         }
