@@ -17,5 +17,6 @@
     <string name="facility_name">시설이름 : </string>
     <string name="phone_number">전화번호 : </string>
     <string name="update_at">업데이트일자 : </string>
+    <string name="fail_find_current_location">현재 위치 정보를 받아오는데 실패했습니다.</string>
 
 </resources>

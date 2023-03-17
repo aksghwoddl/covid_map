@@ -9,4 +9,5 @@
     <color name="white">#FFFFFFFF</color>
     <color name="main_color">#bf360c</color>
     <color name="sub_color">#fbe9e7</color>
+    <color name="current_marker_color">#ff9e80</color>
 </resources>

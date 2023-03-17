@@ -3,7 +3,6 @@ package com.lee.covidmap.domain.repository
 import com.lee.covidmap.common.NetworkResult
 import com.lee.covidmap.data.model.local.CenterEntity
 import com.lee.covidmap.data.model.remote.Center
-import com.lee.covidmap.data.model.remote.CovidCenterResultDTO
 import kotlinx.coroutines.flow.Flow
 
 

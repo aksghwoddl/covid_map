@@ -1,15 +1,19 @@
 package com.lee.covidmap.ui.main
 
 import android.content.Context
+import android.location.Location
+import android.location.LocationManager
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import com.lee.covidmap.R
+import com.lee.covidmap.common.Utils
 import com.lee.covidmap.common.base.BaseActivity
 import com.lee.covidmap.data.model.remote.Center
 import com.lee.covidmap.databinding.ActivityMainBinding
@@ -37,11 +41,20 @@ private const val TAG = "MainActivity"
 class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main){
     private val viewModel : MainViewModel by viewModels()
     private lateinit var naverMap : NaverMap
+    private var currentLocationMarker : Marker? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel.getCenterList()
         binding.mapView.getMapAsync(MapReadyCallback())
+        viewModel.getCenterList()
+    }
+
+    override fun onDestroy() {
+        currentLocationMarker?.let { marker ->
+            marker.map = null
+        }
+        currentLocationMarker = null
+        super.onDestroy()
     }
 
     /**
@@ -49,9 +62,13 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main){
      * **/
     override fun observeData() {
         with(viewModel){
-            centerList.observe(this@MainActivity){ list ->
+            centerList.observe(this@MainActivity){ list -> // 선별소 목록
                 Log.d(TAG, "observeData: ${list.size}")
                 makeMarkers(list)
+            }
+
+            currentLocation.observe(this@MainActivity){ location -> // 현재위치
+                setCurrentLocationMarker(location)
             }
         }
     }
@@ -60,7 +77,52 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main){
      * Listener 등록 함수
      * **/
     override fun addListeners() {
+        with(binding){
+            currentLocationBtn.setOnClickListener { // 현재위치 버튼
+                getCurrentLocation()
+            }
+        }
+    }
 
+    /**
+     * 현재 위치 받아오는 함수
+     * **/
+    private fun getCurrentLocation() {
+        Utils.checkPermission(this@MainActivity , PermissionListener())
+        val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        val gpsLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+        val networkLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
+        with(viewModel){
+            gpsLocation?.let { location -> // GPS를 통해 현재위치를 정상적으로 받아왔을때
+                setCurrentLocation(location)
+            }?:let { // 현재위치를 받아오지 못했을때
+                networkLocation?.let { location ->// 네트워크 Provider를 통해 위치 받음
+                    setCurrentLocation(location)
+                }?: setToastMessage(getString(R.string.fail_find_current_location)) // 둘 다 실패할 경우 toast message 띄움
+            }
+        }
+    }
+
+    /**
+     * 현재위치 마커 표시하기
+     * - location : 전달받은 현재위치
+     * **/
+    private fun setCurrentLocationMarker(location : Location) {
+        if(currentLocationMarker == null){
+            currentLocationMarker = Marker()
+        }
+        currentLocationMarker?.let { marker ->
+            marker.apply {
+                map = null
+                position = LatLng(location.latitude , location.longitude)
+                icon = OverlayImage.fromResource(R.drawable.ic_current_location_24)
+                map = naverMap
+            }
+            val cameraUpdate = CameraUpdate.scrollTo(marker.position)
+            naverMap.run {
+                moveCamera(cameraUpdate)
+            }
+        }
     }
 
     /**
@@ -125,6 +187,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main){
         override fun onMapReady(result : NaverMap) {
             Log.d(TAG, "onMapReady()")
             naverMap = result
+            getCurrentLocation() // 시작시 바로 현재위치 찍음
         }
     }
 
@@ -163,6 +226,23 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main){
                 }
             }
             return infoBinding.root
+        }
+    }
+    /**
+     * 권한을 확인하는 Listener
+     * **/
+    private inner class PermissionListener : com.gun0912.tedpermission.PermissionListener {
+        override fun onPermissionGranted() {
+        }
+
+        override fun onPermissionDenied(deniedPermissions: MutableList<String>?) {
+            AlertDialog.Builder(this@MainActivity)
+                .setMessage(getString(R.string.need_location_permission))
+                .setPositiveButton(getString(R.string.confirm)){ dialog , _ ->
+                    Utils.checkPermission(this@MainActivity , this)
+                    dialog.dismiss()
+                }
+                .create().show()
         }
     }
 }

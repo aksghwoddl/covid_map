@@ -1,7 +1,11 @@
 package com.lee.covidmap.common
 
+import android.Manifest
 import android.content.Context
 import android.net.ConnectivityManager
+import com.gun0912.tedpermission.PermissionListener
+import com.gun0912.tedpermission.normal.TedPermission
+import com.lee.covidmap.R
 
 /**
  * 본 앱에서 Common하게 사용할 Util들을 모아놓은 class
@@ -16,6 +20,22 @@ class Utils {
             val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
             val networkInfo = connectivityManager.activeNetwork
             return networkInfo.toString() != "null"
+        }
+
+        /**
+         * 앱 권한 확인하는 함수
+         * **/
+        fun checkPermission(context: Context , listener : PermissionListener) {
+            val tedPermission = TedPermission.create()
+            tedPermission.run {
+                setPermissionListener(listener)
+                setDeniedMessage(context.getString(R.string.need_location_permission))
+                setPermissions(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                )
+                check()
+            }
         }
     }
 }

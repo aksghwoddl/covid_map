@@ -1,5 +1,6 @@
 package com.lee.covidmap.ui.main.viewmodel
 
+import android.location.Location
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -28,6 +29,20 @@ class MainViewModel @Inject constructor(
     get() = _selectedCenter
     fun setSelectedCenter(center: Center){
         _selectedCenter.value = center
+    }
+
+    private val _currentLocation = MutableLiveData<Location>()
+    val currentLocation : LiveData<Location>
+    get() = _currentLocation
+    fun setCurrentLocation(location : Location){
+        _currentLocation.value = location
+    }
+
+    private val _toastMessage = MutableLiveData<String>()
+    val toastMessage : LiveData<String>
+    get() = _toastMessage
+    fun setToastMessage(message : String){
+        _toastMessage.value = message
     }
 
     /**

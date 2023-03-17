@@ -75,7 +75,7 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>(R.layout.activity_spl
      * **/
     private fun checkNetwork() {
         if(Utils.checkNetworkConnection(this@SplashActivity)){
-            checkPermission()
+            Utils.checkPermission(this@SplashActivity , PermissionListener())
         } else {
             AlertDialog.Builder(this@SplashActivity)
                 .setTitle(getString(R.string.network))
@@ -84,22 +84,6 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>(R.layout.activity_spl
                     checkNetwork()
                     dialog.dismiss()
                 }.create().show()
-        }
-    }
-
-    /**
-     * 앱 권한 확인하는 함수
-     * **/
-    private fun checkPermission() {
-        val tedPermission = TedPermission.create()
-        tedPermission.run {
-            setPermissionListener(PermissionListener())
-            setDeniedMessage(getString(R.string.need_location_permission))
-            setPermissions(
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            )
-            check()
         }
     }
 
@@ -115,7 +99,7 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>(R.layout.activity_spl
             AlertDialog.Builder(this@SplashActivity)
                 .setMessage(getString(R.string.need_location_permission))
                 .setPositiveButton(getString(R.string.confirm)){ dialog , _ ->
-                    checkPermission()
+                    Utils.checkPermission(this@SplashActivity , this)
                     dialog.dismiss()
                 }
                 .create().show()
