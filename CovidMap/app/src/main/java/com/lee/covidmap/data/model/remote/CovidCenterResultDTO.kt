@@ -1,7 +1,9 @@
 package com.lee.covidmap.data.model.remote
 
+import androidx.annotation.Keep
 import com.google.gson.annotations.SerializedName
 
+@Keep
 data class CovidCenterResultDTO(
     val currentCount: Int,
     @SerializedName("data")
@@ -12,6 +14,7 @@ data class CovidCenterResultDTO(
     val totalCount: Int
 )
 
+@Keep
 data class Center(
     val address: String,
     val centerName: String,

@@ -21,6 +21,7 @@ import com.lee.covidmap.databinding.CenterInfoWindowBinding
 import com.lee.covidmap.ui.main.viewmodel.MainViewModel
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.CameraUpdate
+import com.naver.maps.map.MapFragment
 import com.naver.maps.map.NaverMap
 import com.naver.maps.map.OnMapReadyCallback
 import com.naver.maps.map.overlay.InfoWindow
@@ -34,27 +35,51 @@ import kotlinx.coroutines.launch
 /**
  * Main 화면
  * **/
-
 private const val TAG = "MainActivity"
 
 @AndroidEntryPoint
 class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main){
     private val viewModel : MainViewModel by viewModels()
-    private lateinit var naverMap : NaverMap
+    private var naverMap : NaverMap? = null
     private var currentLocationMarker : Marker? = null
+    private val markers = arrayListOf<Marker>()
+    private var mapFragment : MapFragment? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding.mapView.getMapAsync(MapReadyCallback())
-        viewModel.getCenterList()
+        initMapView()
     }
 
     override fun onDestroy() {
-        currentLocationMarker?.let { marker ->
+        clearAllInstances()
+        super.onDestroy()
+    }
+
+    /**
+     * 모든 인스턴스 해제하는 함수
+     * **/
+    private fun clearAllInstances() {
+        currentLocationMarker?.let { marker -> // 현재위치 마커
             marker.map = null
         }
         currentLocationMarker = null
-        super.onDestroy()
+
+        if(markers.isNotEmpty()){ // 선별소 마커
+            markers.forEach { marker ->
+                marker.infoWindow?.close()
+                marker.map = null
+            }
+        }
+
+        if(naverMap != null){ // 지도 객체
+            naverMap = null
+        }
+
+        mapFragment?.let { fragment ->
+            supportFragmentManager.beginTransaction().remove(fragment)
+        }.also {
+            mapFragment = null
+        }
     }
 
     /**
@@ -82,6 +107,17 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main){
                 getCurrentLocation()
             }
         }
+    }
+
+    /**
+     * MapView 초기화 하는 함수
+     * **/
+    private fun initMapView() {
+        mapFragment = supportFragmentManager.findFragmentById(R.id.mapView) as MapFragment?
+            ?: MapFragment.newInstance().also {
+                supportFragmentManager.beginTransaction().add(R.id.mapView, it).commit()
+            }
+        mapFragment?.getMapAsync(MapReadyCallback())
     }
 
     /**
@@ -118,9 +154,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main){
                 icon = OverlayImage.fromResource(R.drawable.ic_current_location_24)
                 map = naverMap
             }
+            markers.add(marker)
             val cameraUpdate = CameraUpdate.scrollTo(marker.position)
-            naverMap.run {
-                moveCamera(cameraUpdate)
+            naverMap?.let { map ->
+                map.moveCamera(cameraUpdate)
             }
         }
     }
@@ -130,7 +167,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main){
      * - list : 전달 받은 선별소 목록
      * **/
     private fun makeMarkers(list : List<Center>) {
-        if(::naverMap.isInitialized){
+        if(naverMap != null){
+            Log.d(TAG, "makeMarkers()")
             lifecycleScope.launch{
                 list.asFlow().collect{ center ->
                     val marker = Marker()
@@ -171,9 +209,11 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main){
             }
             val cameraUpdate = CameraUpdate.scrollTo(selectedMarker.position)
             val cameraZoom = CameraUpdate.zoomTo(16.0)
-            naverMap.run {
-                moveCamera(cameraUpdate)
-                moveCamera(cameraZoom)
+            naverMap?.let { map ->
+                map.run {
+                    moveCamera(cameraUpdate)
+                    moveCamera(cameraZoom)
+                }
             }
         } else { // 정보창이 열려있을때
             selectedMarker.infoWindow?.close()
@@ -188,6 +228,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main){
             Log.d(TAG, "onMapReady()")
             naverMap = result
             getCurrentLocation() // 시작시 바로 현재위치 찍음
+            viewModel.getCenterList()
         }
     }
 
