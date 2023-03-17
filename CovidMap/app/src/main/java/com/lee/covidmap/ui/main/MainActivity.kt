@@ -64,7 +64,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main){
         }
         currentLocationMarker = null
 
-        if(markers.isNotEmpty()){ // 선별소 마커
+        if(markers.isNotEmpty()){ // 접종센터 마커
             markers.forEach { marker ->
                 marker.infoWindow?.close()
                 marker.map = null
@@ -87,7 +87,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main){
      * **/
     override fun observeData() {
         with(viewModel){
-            centerList.observe(this@MainActivity){ list -> // 선별소 목록
+            centerList.observe(this@MainActivity){ list -> // 접종센터 목록
                 Log.d(TAG, "observeData: ${list.size}")
                 makeMarkers(list)
             }
@@ -164,7 +164,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main){
 
     /**
      * 지도에 마커 찍는 함수
-     * - list : 전달 받은 선별소 목록
+     * - list : 전달 받은 접종센터 목록
      * **/
     private fun makeMarkers(list : List<Center>) {
         if(naverMap != null){

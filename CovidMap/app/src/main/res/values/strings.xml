@@ -7,7 +7,7 @@
     <string name="confirm">확인</string>
 
     <!--Splash -->
-    <string name="during_download">선별소 목록을 다운로드 중입니다.</string>
+    <string name="during_download">예방접종센터 목록을 다운로드 중입니다.</string>
 
     <!-- Main -->
     <string name="local">지역</string>

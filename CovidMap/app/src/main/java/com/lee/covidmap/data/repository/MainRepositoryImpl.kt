@@ -20,7 +20,7 @@ class MainRepositoryImpl @Inject constructor(
     private val resourceProvider: ResourceProvider
 ) : MainRepository {
     /**
-     * 코로나 선별소 목록을 불러오는 함수
+     * 코로나 접종센터 목록을 불러오는 함수
      * - page : 불러올 페이지
      * - perPage : 몇개씩 불러올건지 설정
      * - key : 인증키
@@ -47,8 +47,8 @@ class MainRepositoryImpl @Inject constructor(
     }
 
     /**
-     * 코로나 선별소를 insert하는 함수
-     * - centerEntity : insert할 선별소의 Entity
+     * 코로나 접종센터를 insert하는 함수
+     * - centerEntity : insert할 접종센터의 Entity
      * - 반환값 : insert된 rowId
      * * **/
     override suspend fun insertCenter(center: CenterEntity){
@@ -56,7 +56,7 @@ class MainRepositoryImpl @Inject constructor(
     }
 
     /**
-     * 저장된 선별소 목록을 불러오는 함수
+     * 저장된 접종센터 목록을 불러오는 함수
      * **/
     override suspend fun getCenterList(): Flow<List<Center>> {
         return flow {

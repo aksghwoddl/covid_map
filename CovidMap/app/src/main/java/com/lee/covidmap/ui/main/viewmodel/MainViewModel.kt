@@ -46,7 +46,7 @@ class MainViewModel @Inject constructor(
     }
 
     /**
-     * 저장된 선별소 목록 불러오기
+     * 저장된 접종센터 목록 불러오기
      * **/
     fun getCenterList() {
         viewModelScope.launch(Dispatchers.IO) {

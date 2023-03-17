@@ -68,7 +68,7 @@ class SplashViewModel @Inject constructor(
     }
 
     /**
-     * 선별소 목록 저장하기
+     * 접종센터 목록 저장하기
      * list : 저장할 목록
      * **/
     fun insertCenterList(list : List<Center>) {

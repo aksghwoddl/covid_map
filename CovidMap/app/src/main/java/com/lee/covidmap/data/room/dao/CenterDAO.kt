@@ -11,7 +11,7 @@ import com.lee.covidmap.data.model.local.CenterEntity
 interface CenterDAO {
     /**
      * 센터 데이터베이스에 insert하기
-     * - centerEntity : insert할 선별소의 Entity
+     * - centerEntity : insert할 접종센터의 Entity
      * **/
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCenter(centerEntity : CenterEntity)

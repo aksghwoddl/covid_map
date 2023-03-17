@@ -46,7 +46,7 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>(R.layout.activity_spl
                 binding.downloadProgress.progress = it
             }
 
-            covidList.observe(this@SplashActivity){ result -> // 선별소 리스트
+            covidList.observe(this@SplashActivity){ result -> // 접종센터 리스트
                 when(result){
                     is NetworkResult.Success -> insertCenterList(result.data)
                     is NetworkResult.Failure -> Log.d(TAG, "observeData: ${result.code}")
