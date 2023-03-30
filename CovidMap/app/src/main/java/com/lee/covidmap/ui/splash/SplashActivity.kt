@@ -1,14 +1,11 @@
 package com.lee.covidmap.ui.splash
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
-import com.gun0912.tedpermission.normal.TedPermission
-import com.lee.covidmap.BuildConfig
 import com.lee.covidmap.R
 import com.lee.covidmap.common.NetworkResult
 import com.lee.covidmap.common.Utils
@@ -16,7 +13,6 @@ import com.lee.covidmap.common.base.BaseActivity
 import com.lee.covidmap.databinding.ActivitySplashBinding
 import com.lee.covidmap.ui.main.MainActivity
 import com.lee.covidmap.ui.splash.viewmodel.SplashViewModel
-import com.naver.maps.map.NaverMapSdk
 import dagger.hilt.android.AndroidEntryPoint
 
 private const val TAG = "SplashActivity"
@@ -33,6 +29,7 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>(R.layout.activity_spl
         checkNetwork()
         binding.apply {
             splashViewModel = viewModel
+            lifecycleOwner = this@SplashActivity
         }
     }
 
@@ -41,11 +38,6 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>(R.layout.activity_spl
      * **/
     override fun observeData() {
         with(viewModel){
-            progress.observe(this@SplashActivity){ // 다운로드 프로그레스 증가값
-                Log.d(TAG, "observeData: progress = $it")
-                binding.downloadProgress.progress = it
-            }
-
             covidList.observe(this@SplashActivity){ result -> // 접종센터 리스트
                 when(result){
                     is NetworkResult.Success -> insertCenterList(result.data)

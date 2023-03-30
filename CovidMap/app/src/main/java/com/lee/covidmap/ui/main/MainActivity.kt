@@ -62,24 +62,22 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main){
         currentLocationMarker?.let { marker -> // 현재위치 마커
             marker.map = null
         }
-        currentLocationMarker = null
 
         if(markers.isNotEmpty()){ // 접종센터 마커
             markers.forEach { marker ->
                 marker.infoWindow?.close()
                 marker.map = null
             }
+            markers.clear()
         }
 
-        if(naverMap != null){ // 지도 객체
-            naverMap = null
-        }
-
-        mapFragment?.let { fragment ->
+        mapFragment?.let { fragment -> // 네이버 맵
             supportFragmentManager.beginTransaction().remove(fragment)
-        }.also {
-            mapFragment = null
         }
+
+        currentLocationMarker = null
+        naverMap = null
+        mapFragment = null
     }
 
     /**
@@ -243,28 +241,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main){
                 LayoutInflater.from(ctx) , R.layout.center_info_window , parent , false
             )
             with(infoBinding){
-                val center = viewModel.selectedCenter.value!! // 선택된 마커
-                addressTV.apply {
-                    text = center.address
-                    isSelected = true
-                }
-                centerNameTV.apply {
-                    text = center.centerName
-                    isSelected = true
-                }
-
-                facilityNameTV.run{
-                    text = center.facilityName
-                    isSelected = true
-                }
-                phoneNumberTV.run{
-                    text = center.phoneNumber
-                    isSelected = true
-                }
-                updateAtTV.run{
-                    text = center.updatedAt
-                    isSelected = true
-                }
+                mainViewModel = viewModel
+                lifecycleOwner = this@MainActivity
             }
             return infoBinding.root
         }
