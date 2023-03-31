@@ -1,13 +1,12 @@
 package com.lee.covidmap.ui.splash
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import com.lee.covidmap.R
-import com.lee.covidmap.common.NetworkResult
 import com.lee.covidmap.common.Utils
 import com.lee.covidmap.common.base.BaseActivity
 import com.lee.covidmap.databinding.ActivitySplashBinding
@@ -38,15 +37,6 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>(R.layout.activity_spl
      * **/
     override fun observeData() {
         with(viewModel){
-            covidList.observe(this@SplashActivity){ result -> // 접종센터 리스트
-                when(result){
-                    is NetworkResult.Success -> insertCenterList(result.data)
-                    is NetworkResult.Failure -> Log.d(TAG, "observeData: ${result.code}")
-                    is NetworkResult.Exception -> Log.d(TAG, "observeData: ${result.errorMessage}")
-                    is NetworkResult.Loading -> {}
-                }
-            }
-
             endProgress.observe(this@SplashActivity){
                 if(it){
                     startMainActivity()
@@ -67,7 +57,7 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>(R.layout.activity_spl
      * **/
     private fun checkNetwork() {
         if(Utils.checkNetworkConnection(this@SplashActivity)){
-            Utils.checkPermission(this@SplashActivity , PermissionListener())
+            Utils.checkPermission(this@SplashActivity , PermissionListener(viewModel , this@SplashActivity))
         } else {
             AlertDialog.Builder(this@SplashActivity)
                 .setTitle(getString(R.string.network))
@@ -82,16 +72,19 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>(R.layout.activity_spl
     /**
      * 권한을 확인하는 Listener
      * **/
-    private inner class PermissionListener : com.gun0912.tedpermission.PermissionListener {
+    private class PermissionListener(
+        private val viewModel : SplashViewModel ,
+        private val context : Context
+        ) : com.gun0912.tedpermission.PermissionListener {
         override fun onPermissionGranted() {
             viewModel.startProgress()
         }
 
         override fun onPermissionDenied(deniedPermissions: MutableList<String>?) {
-            AlertDialog.Builder(this@SplashActivity)
-                .setMessage(getString(R.string.need_location_permission))
-                .setPositiveButton(getString(R.string.confirm)){ dialog , _ ->
-                    Utils.checkPermission(this@SplashActivity , this)
+            AlertDialog.Builder(context)
+                .setMessage(context.getString(R.string.need_location_permission))
+                .setPositiveButton(context.getString(R.string.confirm)){ dialog , _ ->
+                    Utils.checkPermission(context , this)
                     dialog.dismiss()
                 }
                 .create().show()

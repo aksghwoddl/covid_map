@@ -122,7 +122,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main){
      * 현재 위치 받아오는 함수
      * **/
     private fun getCurrentLocation() {
-        Utils.checkPermission(this@MainActivity , PermissionListener())
+        Utils.checkPermission(this@MainActivity , PermissionListener(this@MainActivity))
         val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
         val gpsLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
         val networkLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
@@ -168,7 +168,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main){
         if(naverMap != null){
             Log.d(TAG, "makeMarkers()")
             lifecycleScope.launch{
-                list.asFlow().collect{ center ->
+                list.forEach { center ->
                     val marker = Marker()
                     marker.apply { // 마커 설정
                         position = LatLng(center.lat.toDouble() , center.lng.toDouble()) // 위치
@@ -202,7 +202,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main){
         if(selectedMarker.infoWindow == null){ // 정보창이 열려 있지 않을때
             val infoWindow = InfoWindow()
             infoWindow.run {
-                adapter = CenterAdapter(this@MainActivity)
+                adapter = CenterAdapter(this@MainActivity , viewModel, binding)
                 open(selectedMarker)
             }
             val cameraUpdate = CameraUpdate.scrollTo(selectedMarker.position)
@@ -233,16 +233,20 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main){
     /**
      * 정보창 Adapter
      * **/
-    private inner class CenterAdapter(private val ctx : Context) : InfoWindow.DefaultViewAdapter(ctx){
+    private inner class CenterAdapter(
+        private val activity: MainActivity ,
+        private val viewModel : MainViewModel ,
+        private val binding: ActivityMainBinding ,
+    ) : InfoWindow.DefaultViewAdapter(activity.baseContext){
 
         override fun getContentView(infoWindow: InfoWindow): View {
             val parent = binding.root as ViewGroup
             val infoBinding : CenterInfoWindowBinding = DataBindingUtil.inflate(
-                LayoutInflater.from(ctx) , R.layout.center_info_window , parent , false
+                LayoutInflater.from(activity.baseContext) , R.layout.center_info_window , parent , false
             )
             with(infoBinding){
                 mainViewModel = viewModel
-                lifecycleOwner = this@MainActivity
+                lifecycleOwner = activity
             }
             return infoBinding.root
         }
@@ -250,15 +254,15 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main){
     /**
      * 권한을 확인하는 Listener
      * **/
-    private inner class PermissionListener : com.gun0912.tedpermission.PermissionListener {
+    private class PermissionListener(private val context: Context) : com.gun0912.tedpermission.PermissionListener {
         override fun onPermissionGranted() {
         }
 
         override fun onPermissionDenied(deniedPermissions: MutableList<String>?) {
-            AlertDialog.Builder(this@MainActivity)
-                .setMessage(getString(R.string.need_location_permission))
-                .setPositiveButton(getString(R.string.confirm)){ dialog , _ ->
-                    Utils.checkPermission(this@MainActivity , this)
+            AlertDialog.Builder(context)
+                .setMessage(context.getString(R.string.need_location_permission))
+                .setPositiveButton(context.getString(R.string.confirm)){ dialog , _ ->
+                    Utils.checkPermission(context , this)
                     dialog.dismiss()
                 }
                 .create().show()
